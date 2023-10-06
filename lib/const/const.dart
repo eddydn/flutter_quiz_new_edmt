@@ -1,3 +1,5 @@
+const limitTime = 10*60; // 10 min
+
 const dbName = "EDMTQuiz2023.db";
 const columnMainCategoryId = "ID";
 const columnCategoryName = "Name";

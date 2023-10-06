@@ -8,6 +8,7 @@ import '../domain/quiz_domain.dart';
 import '../model/question.dart';
 import '../model/user_answer.dart';
 import '../widgets/question_body_widget.dart';
+import '../const/const.dart';
 
 class ReadModePage extends StatefulWidget {
   const ReadModePage({super.key});
@@ -23,6 +24,7 @@ class _ReadModePageState extends State<ReadModePage> {
   CarouselController buttonCarouselController = CarouselController();
 
   Future<int> getIndexPageFromCache() {
+    if (prefs == null) return Future.value(0);
     return Future.value(prefs.getInt(
         '${questionCategoryState.value.name}_${questionCategoryState.value.id}'));
   }
@@ -34,10 +36,10 @@ class _ReadModePageState extends State<ReadModePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       prefs = await SharedPreferences.getInstance();
       indexPage = await getIndexPageFromCache();
-      if (indexPage != null) {
-        Future.delayed(const Duration(microseconds: 500)).then(
-            (value) => buttonCarouselController.animateToPage(indexPage ?? 0));
-      }
+      Future.delayed(const Duration(microseconds: 500)).then((value) => {
+            if (buttonCarouselController != null && !isEmptyQuestion.value)
+              buttonCarouselController.animateToPage(indexPage ?? 0)
+          });
     });
   }
 
@@ -57,7 +59,7 @@ class _ReadModePageState extends State<ReadModePage> {
                   );
                 } else if (snapshot.hasData) {
                   var questions = snapshot.data as List<Question>;
-
+                  isEmptyQuestion.value = questions.isEmpty;
                   return questions.isEmpty
                       ? const Center(
                           child: Text('This category contains no question'),
